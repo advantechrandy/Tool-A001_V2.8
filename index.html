@@ -3,39 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>超流體產生器參數計算</title>
+    <title>超流體產生器參數計算 V3.0</title>
     <style>
         :root {
-            --bg-dark: #121212;
-            --panel-bg: #1e1e1e;
-            --accent-gold: #d4a017;
-            --accent-cyan: #00d4ff;
-            --text-main: #e0e0e0;
-            --border-industrial: #333333;
-            --input-focus: #444444;
-            --danger: #ff4d4d;
+            --bg-dark: #0f0f0f;
+            --panel-bg: #1a1a1a;
+            --accent-gold: #ffb400;
+            --accent-cyan: #00f2ff;
+            --text-main: #f0f0f0;
+            --border-industrial: #3a3a3a;
+            --input-focus: #2d2d2d;
+            --danger: #ff3e3e;
+            --font-main: 'Segoe UI', 'Roboto', 'Microsoft JhengHei', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Consolas', monospace;
         }
 
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: 'Consolas', 'Segoe UI', 'Microsoft JhengHei', monospace;
+            font-family: var(--font-main);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            letter-spacing: 0.5px;
         }
 
         .calc-wrapper {
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             background: var(--panel-bg);
-            border: 2px solid var(--border-industrial);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 1px solid var(--border-industrial);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             position: relative;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
         }
@@ -46,50 +48,64 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
-            background: repeating-linear-gradient(
-                45deg,
-                var(--accent-gold),
-                var(--accent-gold) 10px,
-                #000 10px,
-                #000 20px
-            );
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-gold) 0%, #000 50%, var(--accent-gold) 100%);
             z-index: 10;
         }
 
-        /* 分頁標籤樣式 */
+        /* 即時時間顯示樣式 */
+        .live-clock {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            z-index: 20;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 2px;
+        }
+
         .tabs {
             display: flex;
-            background: #151515;
+            background: #111;
             border-bottom: 1px solid var(--border-industrial);
-            padding-top: 4px;
         }
 
         .tab-btn {
-            padding: 12px 20px;
+            padding: 15px 25px;
             cursor: pointer;
             border: none;
             background: transparent;
-            color: #666;
-            font-family: inherit;
-            font-weight: bold;
+            color: #777;
+            font-family: var(--font-main);
+            font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             transition: 0.3s;
+            letter-spacing: 2px;
         }
 
         .tab-btn.active {
             color: var(--accent-gold);
             background: var(--panel-bg);
-            border-bottom: 2px solid var(--accent-gold);
+            box-shadow: inset 0 -2px 0 var(--accent-gold);
         }
 
         .content-area {
-            padding: 30px;
+            padding: 35px;
         }
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .tab-content.active {
@@ -97,34 +113,31 @@
         }
 
         header {
-            margin-bottom: 25px;
-            border-bottom: 1px solid var(--border-industrial);
-            padding-bottom: 15px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--accent-gold);
+            padding-left: 15px;
         }
 
         h1 {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             margin: 0;
             color: var(--accent-gold);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-family: var(--font-mono);
+            font-weight: 700;
         }
 
         .status-tag {
             font-size: 0.7rem;
-            background: #2a2a2a;
-            padding: 2px 8px;
-            border: 1px solid #444;
-            display: inline-block;
+            color: #aaa;
             margin-top: 5px;
-            color: #888;
+            font-family: var(--font-mono);
         }
 
         .input-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 25px;
+            margin-bottom: 35px;
         }
 
         .field {
@@ -133,39 +146,40 @@
         }
 
         label {
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-            color: #aaa;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            color: #999;
+            font-weight: 600;
         }
 
         input, select {
-            background: #111;
+            background: #0a0a0a;
             border: 1px solid var(--border-industrial);
             color: var(--accent-cyan);
-            padding: 12px;
+            padding: 14px;
             font-size: 1rem;
-            border-radius: 2px;
+            font-family: var(--font-mono);
             outline: none;
-            transition: all 0.3s;
+            transition: 0.2s;
         }
 
         input:focus, select:focus {
             border-color: var(--accent-gold);
-            background: #1a1a1a;
+            background: #121212;
+            box-shadow: 0 0 10px rgba(255, 180, 0, 0.1);
         }
 
         .output-section {
-            background: #151515;
+            background: #111;
+            padding: 25px;
             border: 1px solid #222;
-            padding: 20px;
-            position: relative;
         }
 
         .output-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #222;
         }
 
@@ -175,27 +189,31 @@
 
         .label-text {
             font-size: 0.9rem;
+            color: #bbb;
         }
 
         .value-text {
             color: var(--accent-gold);
-            font-weight: bold;
-            font-size: 1.1rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            font-family: var(--font-mono);
         }
 
         .unit {
-            font-size: 0.8rem;
-            color: #666;
-            margin-left: 5px;
+            font-size: 0.75rem;
+            color: #555;
+            margin-left: 6px;
         }
 
         .warning-text {
             color: var(--danger);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             display: none;
-            margin-top: 10px;
-            border-left: 2px solid var(--danger);
-            padding-left: 10px;
+            margin-top: 20px;
+            background: rgba(255, 62, 62, 0.1);
+            border: 1px solid var(--danger);
+            padding: 15px;
+            line-height: 1.5;
         }
 
         .btn-calc {
@@ -203,69 +221,59 @@
             background: var(--accent-gold);
             color: #000;
             border: none;
-            padding: 15px;
-            font-weight: bold;
+            padding: 18px;
+            font-weight: 800;
             text-transform: uppercase;
             cursor: pointer;
-            margin-top: 20px;
-            letter-spacing: 2px;
-            transition: 0.2s;
+            margin-top: 25px;
+            letter-spacing: 3px;
+            font-family: var(--font-mono);
+            transition: 0.3s;
         }
 
         .btn-calc:hover {
-            background: #f1b61c;
+            background: #ffc43d;
+            filter: brightness(1.1);
         }
 
-        /* 說明分頁樣式 */
-        .info-page h2 {
-            color: var(--accent-gold);
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            border-left: 3px solid var(--accent-gold);
-            padding-left: 10px;
-        }
-
+        /* 說明分頁 */
         .info-card {
-            background: #151515;
+            background: #111;
+            padding: 20px;
+            margin-bottom: 25px;
             border: 1px solid #222;
-            padding: 15px;
-            margin-bottom: 20px;
         }
 
-        .info-card strong {
-            color: var(--danger);
-            display: block;
-            margin-bottom: 5px;
+        .info-card h2 {
+            color: var(--accent-gold);
+            font-size: 1rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-family: var(--font-mono);
         }
 
         .formula-block {
-            font-family: 'Consolas', monospace;
+            font-family: var(--font-mono);
             background: #000;
-            padding: 10px;
+            padding: 15px;
             color: var(--accent-cyan);
             font-size: 0.8rem;
-            margin-top: 10px;
-            border: 1px dashed #444;
+            line-height: 1.6;
+            border: 1px solid #333;
+            margin-bottom: 15px;
         }
 
-        .source-block {
-            font-size: 0.75rem;
-            color: #777;
-            margin-top: 10px;
-            font-style: italic;
-        }
-
-        .note {
-            font-size: 0.75rem;
-            color: #555;
-            margin-top: 20px;
-            line-height: 1.4;
+        .note-highlight {
+            color: var(--accent-gold);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="calc-wrapper">
+    <div id="live_clock" class="live-clock">--:--:--</div>
+    
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab('calc')">Simulator</button>
         <button class="tab-btn" onclick="openTab('info')">Documentation</button>
@@ -275,35 +283,35 @@
         <!-- 模擬器分頁 -->
         <div id="calc" class="tab-content active">
             <header>
-                <h1>SUPER FLUID GENERATOR SIMULATOR V2.8</h1>
-                <div class="status-tag">CREATOR: RANDY CHEN</div>
+                <h1>SFG SIMULATOR V3.0 (FLOW_SYNC)</h1>
+                <div class="status-tag">CREATOR: RANDY CHEN | RELEASE: 2026.01.26</div>
             </header>
 
             <div class="input-section">
                 <div class="field" style="grid-column: span 2;">
                     <label>冷卻液種類 (Coolant Type)</label>
                     <select id="fluid_type">
-                        <option value="synthetic_oil" selected>合成油 (Synthetic Oil) - 高黏度/高絕緣</option>
+                        <option value="synthetic_oil">合成油 (Synthetic Oil) - 高黏度/高絕緣</option>
                         <option value="fluorinated">氟化液 (Fluorinated Fluid) - 電子級/低黏度</option>
                         <option value="pg25">PG25 (水基丙二醇) - 高比熱/導電風險</option>
                         <option value="pure_water">去離子純水 - 最高熱容/極高風險</option>
                     </select>
                 </div>
                 <div class="field">
-                    <label>初始流體黏度 (Base Viscosity cP)</label>
+                    <label>初始流體黏度 (cP)</label>
                     <input type="number" id="base_visc" value="25.0" step="0.1">
                 </div>
                 <div class="field">
-                    <label>氣泡注入體積比 (Injection Ratio %)</label>
-                    <input type="number" id="inj_ratio" value="10.0" step="0.5" min="0" max="50">
+                    <label>氣泡注入比 (%)</label>
+                    <input type="number" id="inj_ratio" value="12.0" step="0.5" min="0" max="50">
                 </div>
                 <div class="field">
-                    <label>冷卻液循環流速 (Flow Rate L/min)</label>
-                    <input type="number" id="flow_rate" value="12.0" step="0.5">
+                    <label>循環流速 (L/min)</label>
+                    <input type="number" id="flow_rate" value="12.0" step="0.1">
                 </div>
                 <div class="field">
-                    <label>運算節點 TDP (Target TDP Watts)</label>
-                    <input type="number" id="target_tdp" value="1000" step="50">
+                    <label>目標 TDP (Watts)</label>
+                    <input type="number" id="target_tdp" value="1000" step="100">
                 </div>
             </div>
 
@@ -313,67 +321,79 @@
                     <span class="value-text" id="visc_red_out">--</span>
                 </div>
                 <div class="output-row">
-                    <span class="label-text">預估熱阻值改善</span>
+                    <span class="label-text">預估熱阻改善 (Thermal Δ)</span>
                     <span class="value-text" id="thermal_imp_out">--</span>
                 </div>
                 <div class="output-row">
-                    <span class="label-text">流體熱容衰減 (Capacity Loss)</span>
-                    <span class="value-text" style="color: #ff4d4d;" id="heat_loss_out">--</span>
+                    <span class="label-text">流體熱容衰減 (Cap. Loss)</span>
+                    <span class="value-text" style="color: #ff3e3e;" id="heat_loss_out">--</span>
                 </div>
                 <div class="output-row">
-                    <span class="label-text">系統最終解熱能力</span>
+                    <span class="label-text">系統最終解熱上限</span>
                     <span class="value-text" id="cool_capacity_out">--</span>
                 </div>
                 <div id="warning_box" class="warning-text">
-                    WARNING: 氣泡比例過高，熱容衰減已抵銷散熱增益。
+                    [SYSTEM ALERT]<br>
+                    檢測到物理性效能崩潰風險：氣泡比例過高導致熱容損失已超過流速補償增益。
                 </div>
             </div>
 
-            <button class="btn-calc" id="run_sim">執行參數演算</button>
+            <button class="btn-calc" id="run_sim">執行核心演算</button>
         </div>
 
         <!-- 說明分頁 -->
-        <div id="info" class="tab-content info-page">
+        <div id="info" class="tab-content">
             <header>
-                <h1>物理極限與演算公式說明</h1>
-                <div class="status-tag">TECHNICAL DATA SHEET</div>
+                <h1>核心公式與物理模型</h1>
+                <div class="status-tag">CORE LOGIC & FORMULAS</div>
             </header>
 
             <div class="info-card">
-                <h2>演算公式核心 (Algorithm Formulas)</h2>
-                <p style="font-size: 0.85rem; line-height: 1.6;">
-                    系統根據輸入之流體特性與注入比進行非線性模擬：
-                </p>
+                <h2>1. 系統最終解熱能力 (Final Capacity)</h2>
                 <div class="formula-block">
-                    1. 黏度降低比例 (Viscosity Reduction):<br>
-                    &nbsp;&nbsp;If Ratio ≤ 18%: Reduction = Ratio * 1.35 * ViscGain<br>
-                    &nbsp;&nbsp;Else: 18% Gain + (Ratio - 18) * 0.35<br><br>
-                    2. 熱阻改善 (Thermal Improvement):<br>
-                    &nbsp;&nbsp;Base: 8.8 + (Ratio / 25) * (11.4 - 8.8)<br><br>
-                    3. 熱容衰減 (Capacity Loss):<br>
-                    &nbsp;&nbsp;Loss = Ratio * (0.7 + (HeatWeight * 0.3))
-                </div>
-                <div class="source-block">
-                    公式來源：參考「多相流解熱效率實驗模型 (Multiphase Flow Cooling Efficiency Empirical Model)」及內部氣泡輔助流動研究數據。
+                    FlowFactor = FlowRate / 12.0 (基準值)<br>
+                    Efficiency = (1 + ThermalImp / 100) * (1 - CapLoss / 100) * FlowFactor<br>
+                    FinalCapacity = TDP * Efficiency
                 </div>
             </div>
 
             <div class="info-card">
-                <h2>熱容 (Specific Heat Capacity) 下降</h2>
-                <p style="font-size: 0.85rem; line-height: 1.6;">
-                    空氣的比熱遠低於液體。當體積比達到 40% 時，流體單位體積能攜帶的熱量會大幅減少，導致即使流速加快，整體換熱效率依然下降。
-                </p>
+                <h2>2. 黏度降低比例 (Viscosity Reduction)</h2>
+                <div class="formula-block">
+                    IF Ratio <= 18:<br>
+                    &nbsp;&nbsp;ViscReduction = Ratio * 1.35 * ViscGain<br>
+                    ELSE:<br>
+                    &nbsp;&nbsp;ViscReduction = (18 * 1.35 * ViscGain) + (Ratio - 18) * 0.35<br>
+                    (Max Limit: 45%)
+                </div>
             </div>
 
             <div class="info-card">
-                <h2>幫浦空蝕 (Cavitation) 風險</h2>
-                <p style="font-size: 0.85rem; line-height: 1.6;">
-                    過多氣泡注入會導致幫浦葉片處產生氣阻或空蝕現象，導致幫浦效能下降、震動增加，甚至造成物理性損壞。
-                </p>
+                <h2>3. 熱阻改善與熱容損失</h2>
+                <p style="font-size: 0.8rem; color: #999; margin-bottom: 10px;">熱阻改善 (Thermal Improvement):</p>
+                <div class="formula-block">
+                    BaseImp = 8.8 + (Ratio / 25) * (11.4 - 8.8)<br>
+                    (Adjusted by Fluid Type Turbulence Factor)
+                </div>
+                <p style="font-size: 0.8rem; color: #999; margin-bottom: 10px;">熱容損失 (Capacity Loss):</p>
+                <div class="formula-block">
+                    CapLoss = Ratio * (0.7 + (FluidHeatWeight * 0.3))
+                </div>
             </div>
 
-            <div class="note" style="color: var(--accent-gold); border-top: 1px solid #333; padding-top: 15px;">
-                建議最佳運行區間：10.0% ~ 18.0% 氣泡注入比。系統於超過 25% 時將發出物理性效能崩潰預警。
+            <div class="info-card">
+                <h2>4. 流體參數表</h2>
+                <table style="width: 100%; font-size: 0.8rem; color: #ccc; border-collapse: collapse;">
+                    <tr style="border-bottom: 1px solid #333; text-align: left;">
+                        <th style="padding: 5px;">Fluid</th>
+                        <th>HeatWeight</th>
+                        <th>ViscGain</th>
+                    </tr>
+                    <tr><td style="padding: 5px;">Synthetic Oil</td><td>0.45</td><td>1.5</td></tr>
+                    <tr><td style="padding: 5px;">Fluorinated</td><td>0.25</td><td>0.8</td></tr>
+                    <tr><td style="padding: 5px;">PG25</td><td>0.85</td><td>1.0</td></tr>
+                    <tr><td style="padding: 5px;">Pure Water</td><td>1.00</td><td>1.1</td></tr>
+                </table>
             </div>
         </div>
     </div>
@@ -383,19 +403,32 @@
     // 禁用右鍵選單
     document.addEventListener('contextmenu', e => e.preventDefault());
 
-    // 分頁切換功能
+    // 即時時間更新
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('zh-TW', { 
+            hour12: false, 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+        });
+        document.getElementById('live_clock').innerText = timeString;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
     function openTab(tabName) {
-        const contents = document.getElementsByClassName('tab-content');
-        const buttons = document.getElementsByClassName('tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+        const buttons = document.querySelectorAll('.tab-btn');
         
-        for (let content of contents) content.classList.remove('active');
-        for (let btn of buttons) btn.classList.remove('active');
+        contents.forEach(c => c.classList.remove('active'));
+        buttons.forEach(b => b.classList.remove('active'));
         
         document.getElementById(tabName).classList.add('active');
         event.currentTarget.classList.add('active');
     }
 
-    // 根據冷卻液種類自動調整預設黏度
+    // 流體預設值
     document.getElementById('fluid_type').addEventListener('change', function() {
         const baseVisc = document.getElementById('base_visc');
         switch(this.value) {
@@ -415,7 +448,6 @@
 
         if (isNaN(baseVisc) || isNaN(ratio) || isNaN(flow) || isNaN(tdp)) return;
 
-        // 流體物理參數配置表
         const fluidProps = {
             'synthetic_oil': { heatWeight: 0.45, viscGain: 1.5 },
             'fluorinated':   { heatWeight: 0.25, viscGain: 0.8 },
@@ -424,34 +456,32 @@
         };
         const currentProp = fluidProps[fluidType];
 
-        // 1. 黏度降低演算 (帶非線性飽和效應)
         let viscReduction = ratio * 1.35 * currentProp.viscGain;
         if (ratio > 18) {
             viscReduction = (18 * 1.35 * currentProp.viscGain) + (ratio - 18) * 0.35;
         }
-        if (viscReduction > 45) viscReduction = 45;
+        viscReduction = Math.min(viscReduction, 45);
 
-        // 2. 熱阻改善演算 (邊際效益遞減)
         let thermalImp = 8.8 + (ratio / 25) * (11.4 - 8.8);
         if (ratio < 5) thermalImp = (ratio / 5) * 8.8;
         if (fluidType === 'fluorinated') thermalImp *= 0.7;
 
-        // 3. 熱容衰減演算 (隨氣泡比例增加)
         let heatCapacityLoss = ratio * (0.7 + (currentProp.heatWeight * 0.3)); 
 
-        // 4. 系統最終效能計算
-        let netGain = (1 + (thermalImp / 100)) * (1 - (heatCapacityLoss / 100));
-        let finalCapacity = tdp * netGain;
+        let flowFactor = flow / 12.0;
+        let efficiency = (1 + (thermalImp / 100)) * (1 - (heatCapacityLoss / 100)) * flowFactor;
+        let finalCapacity = tdp * efficiency;
 
         document.getElementById('visc_red_out').innerHTML = viscReduction.toFixed(2) + '<span class="unit">%</span>';
         document.getElementById('thermal_imp_out').innerHTML = thermalImp.toFixed(2) + '<span class="unit">%</span>';
         document.getElementById('heat_loss_out').innerHTML = heatCapacityLoss.toFixed(2) + '<span class="unit">%</span>';
         document.getElementById('cool_capacity_out').innerHTML = Math.round(finalCapacity) + '<span class="unit">W</span>';
 
-        // 預警判斷
         const warningBox = document.getElementById('warning_box');
-        if (netGain < 0.95 || ratio > 25) {
+        if (efficiency < 0.9 || ratio > 25 || flow < 5) {
             warningBox.style.display = 'block';
+            if (flow < 5) warningBox.innerHTML = "[SYSTEM ALERT]<br>流速過低 (Critical Low Flow)！系統面臨過熱風險。";
+            else warningBox.innerHTML = "[SYSTEM ALERT]<br>氣泡比例過高！熱容損失已抵銷流動增益，系統效能發生崩潰。";
         } else {
             warningBox.style.display = 'none';
         }
